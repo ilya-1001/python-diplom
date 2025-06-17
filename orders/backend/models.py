@@ -68,7 +68,7 @@ class User(AbstractUser):
     email = models.EmailField(_('email address'),max_length=255, unique=True)
     company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
     position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
-    type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=5, default='buyer')
+    type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=10, default='buyer')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
