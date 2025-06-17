@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-AUTH_USER_MODEL = 'backend.Profile'
+AUTH_USER_MODEL = 'backend.User'
 
 # Application definition
 

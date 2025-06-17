@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import (AbstractUser, BaseUserManager)
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.tokens import get_token_generator
@@ -15,13 +15,44 @@ ORDER_STATE_CHOICES = (
 )
 
 USER_TYPE_CHOICES = (
-    ('shop', 'Магазин'),
+    ('supplier', 'Поставщик'),
     ('buyer', 'Покупатель'),
 
 )
 
 
-class Profile(AbstractUser):
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        """
+        Создает и возвращает пользователя с имэйлом, паролем.
+        """
+        if not email:
+            raise ValueError('The given email must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        """
+        Создает и возввращет пользователя с привилегиями суперадмина.
+        """
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
     """Модель пользователя"""
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(
@@ -34,10 +65,13 @@ class Profile(AbstractUser):
             'unique': _("A user with that username already exists."),
         },
     )
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_('email address'),max_length=255, unique=True)
     company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
     position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
     type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=5, default='buyer')
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -48,31 +82,30 @@ class Profile(AbstractUser):
         return f'{self.first_name} {self.last_name}'
 
 
-class Shop(models.Model):
-    """Модель магазина"""
-    class Shop(models.Model):
-        title = models.CharField(max_length=250, verbose_name='Название')
-        address = models.CharField(max_length=100)
-        city = models.CharField(max_length=50)
-        url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
-        user = models.OneToOneField(Profile, verbose_name='Пользователь',
-                                    blank=True, null=True,
-                                    on_delete=models.CASCADE)
-        state = models.BooleanField(verbose_name='статус получения заказов', default=True)
+class Supplier(models.Model):
+    """Модель поставщика"""
+    name = models.CharField(max_length=250, verbose_name='Название')
+    address = models.CharField(max_length=100, verbose_name='Адрес')
+    city = models.CharField(max_length=50, verbose_name='Город')
+    url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
+    user = models.OneToOneField(User, verbose_name='Пользователь',
+                                blank=True, null=True,
+                                on_delete=models.CASCADE)
+    state = models.BooleanField(verbose_name='статус получения заказов', default=True)
 
-        class Meta:
-            verbose_name = 'Магазин'
-            verbose_name_plural = 'Список магазинов'
-            ordering = ('-name',)
+    class Meta:
+        verbose_name = 'Поставщик'
+        verbose_name_plural = 'Список поставщиков'
+        ordering = ('-name',)
 
-        def __str__(self):
-            return self.title
+    def __str__(self):
+        return self.name
 
 
 class Category(models.Model):
     """Модель категорий"""
     name = models.CharField(verbose_name='Название', max_length=100)
-    shops = models.ManyToManyField(Shop, verbose_name='Магазины', related_name='categories', blank=True)
+    suppliers = models.ManyToManyField(Supplier, verbose_name='Поставщики', related_name='categories', blank=True)
 
     class Meta:
         verbose_name = 'Категория'
@@ -105,7 +138,7 @@ class ProductInfo(models.Model):
     product = models.ForeignKey(Product,verbose_name="Продукт",
         related_name="product_info", blank=True, on_delete=models.CASCADE
     )
-    shop = models.ForeignKey(Shop,verbose_name="Магазин",
+    supplier = models.ForeignKey(Supplier,verbose_name="Поставщик",
         related_name="product_info", blank=True, on_delete=models.CASCADE
     )
     quantity = models.IntegerField("Количество в наличии")
@@ -120,7 +153,7 @@ class ProductInfo(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.product.name} {self.shop.name}"
+        return f"{self.product.name} {self.supplier.name}"
 
 
 class Parameter(models.Model):
@@ -158,7 +191,7 @@ class ProductParameter(models.Model):
 
 class Contact(models.Model):
     """Модель контактов пользователя"""
-    user = models.ForeignKey(Profile, verbose_name='Пользователь',
+    user = models.ForeignKey(User, verbose_name='Пользователь',
                              related_name='contacts', blank=True,
                              on_delete=models.CASCADE)
 
@@ -180,7 +213,7 @@ class Contact(models.Model):
 
 class Order(models.Model):
     """Модель заказов"""
-    user = models.ForeignKey(Profile, verbose_name='Пользователь',
+    user = models.ForeignKey(User, verbose_name='Пользователь',
                              related_name='orders', blank=True,
                              on_delete=models.CASCADE)
     dt = models.DateTimeField(auto_now_add=True)
@@ -228,7 +261,7 @@ class ConfirmEmailToken(models.Model):
         return get_token_generator().generate_token()
 
     user = models.ForeignKey(
-        Profile,
+        User,
         related_name='confirm_email_tokens',
         on_delete=models.CASCADE,
         verbose_name=_("The User which is associated to this password reset token")
