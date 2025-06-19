@@ -70,6 +70,15 @@ class User(AbstractUser):
     position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
     type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=10, default='buyer')
 
+    is_active = models.BooleanField(
+        _('active'),
+        default=False,
+        help_text=_(
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
+        ),
+    )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -251,6 +260,8 @@ class OrderItem(models.Model):
 
 class ConfirmEmailToken(models.Model):
     """модель подтверждения электронной почты"""
+    objects = models.manager.Manager()
+
     class Meta:
         verbose_name = 'Токен подтверждения Email'
         verbose_name_plural = 'Токены подтверждения Email'
