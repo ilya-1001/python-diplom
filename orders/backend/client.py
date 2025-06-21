@@ -31,3 +31,9 @@ import requests as rq
 #                    )
 # print(response)
 # print(response.json())
+
+
+# response = rq.get("http://0.0.0.0:8000/api/v1/user/details"
+#                    )
+# print(response)
+# print(response.json())
