@@ -41,7 +41,7 @@ def strtobool(val):
 class SignUp(APIView):
     def post(self, request, *args, **kwargs):
         # проверяем обязательные аргументы
-        if {'first_name', 'last_name', 'email', 'password', 'company', 'position'}.issubset(request.data):
+        if {'first_name', 'last_name', 'username', 'email', 'password', 'company', 'position'}.issubset(request.data):
             # проверяем пароль на сложность
             try:
                 validate_password(request.data['password'])
