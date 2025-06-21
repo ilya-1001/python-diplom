@@ -54,6 +54,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     """Модель пользователя"""
+    objects = UserManager()
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(
         _('username'),
@@ -93,6 +94,7 @@ class User(AbstractUser):
 
 class Supplier(models.Model):
     """Модель поставщика"""
+    objects = models.manager.Manager()
     name = models.CharField(max_length=250, verbose_name='Название')
     address = models.CharField(max_length=100, verbose_name='Адрес')
     city = models.CharField(max_length=50, verbose_name='Город')
@@ -113,6 +115,7 @@ class Supplier(models.Model):
 
 class Category(models.Model):
     """Модель категорий"""
+    objects = models.manager.Manager()
     name = models.CharField(verbose_name='Название', max_length=100)
     suppliers = models.ManyToManyField(Supplier, verbose_name='Поставщики', related_name='categories', blank=True)
 
@@ -127,6 +130,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     """Модель продукта"""
+    objects = models.manager.Manager()
     name = models.CharField(max_length=80, verbose_name='Название')
     category = models.ForeignKey(Category, verbose_name='Категория', related_name='products', blank=True,
                                  on_delete=models.CASCADE)
@@ -142,6 +146,7 @@ class Product(models.Model):
 
 class ProductInfo(models.Model):
     """Модель информации о продукте"""
+    objects = models.manager.Manager()
     model = models.CharField(max_length=80, verbose_name='Модель', blank=True)
     external_id = models.PositiveIntegerField(verbose_name='Внешний ИД')
     product = models.ForeignKey(Product,verbose_name="Продукт",
@@ -167,6 +172,7 @@ class ProductInfo(models.Model):
 
 class Parameter(models.Model):
     """Модель параметров"""
+    objects = models.manager.Manager()
     name = models.CharField(max_length=40, verbose_name='Название')
 
     class Meta:
@@ -180,6 +186,7 @@ class Parameter(models.Model):
 
 class ProductParameter(models.Model):
     """Модель параметров продукта"""
+    objects = models.manager.Manager()
     product_info = models.ForeignKey(ProductInfo, verbose_name='Информация о продукте',
                                      related_name='product_parameters', blank=True,
                                      on_delete=models.CASCADE)
@@ -200,6 +207,7 @@ class ProductParameter(models.Model):
 
 class Contact(models.Model):
     """Модель контактов пользователя"""
+    objects = models.manager.Manager()
     user = models.ForeignKey(User, verbose_name='Пользователь',
                              related_name='contacts', blank=True,
                              on_delete=models.CASCADE)
@@ -222,6 +230,7 @@ class Contact(models.Model):
 
 class Order(models.Model):
     """Модель заказов"""
+    objects = models.manager.Manager()
     user = models.ForeignKey(User, verbose_name='Пользователь',
                              related_name='orders', blank=True,
                              on_delete=models.CASCADE)
@@ -242,6 +251,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     """Модель позиции заказа"""
+    objects = models.manager.Manager()
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='ordered_items', blank=True,
                               on_delete=models.CASCADE)
 
