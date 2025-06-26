@@ -1,3 +1,4 @@
+import json
 from rest_framework.request import Request
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -18,7 +19,7 @@ from .models import Supplier, Category, Product, ProductInfo, Parameter, Product
     Contact, ConfirmEmailToken
 from .serializers import UserSerializer, CategorySerializer, SupplierSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
-from .signals import new_user_registered, process_order
+from .signals import update_order
 
 
 def strtobool(val):
@@ -60,6 +61,7 @@ class SignUp(APIView):
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
+                    #new_user_registered(user)
                     return JsonResponse({'Status': True})
                 else:
                     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
@@ -201,13 +203,13 @@ class BasketView(APIView):
         items_sting = request.data.get('items')
         if items_sting:
             try:
-                items_dict = load_json(items_sting)
+                items_dict = json.dumps(items_sting)
             except ValueError:
                 return JsonResponse({'Status': False, 'Errors': 'Неверный формат запроса'})
             else:
                 basket, _ = Order.objects.get_or_create(user_id=request.user.id, state='basket')
                 objects_created = 0
-                for order_item in items_dict:
+                for order_item in load_json(items_dict):
                     order_item.update({'order': basket.id})
                     serializer = OrderItemSerializer(data=order_item)
                     if serializer.is_valid():
@@ -254,13 +256,13 @@ class BasketView(APIView):
         items_sting = request.data.get('items')
         if items_sting:
             try:
-                items_dict = load_json(items_sting)
+                items_dict = json.dumps(items_sting)
             except ValueError:
                 return JsonResponse({'Status': False, 'Errors': 'Неверный формат запроса'})
             else:
                 basket, _ = Order.objects.get_or_create(user_id=request.user.id, state='basket')
                 objects_updated = 0
-                for order_item in items_dict:
+                for order_item in json.loads(items_dict):
                     if type(order_item['id']) == int and type(order_item['quantity']) == int:
                         objects_updated += OrderItem.objects.filter(order_id=basket.id, id=order_item['id']).update(
                             quantity=order_item['quantity'])
@@ -359,7 +361,7 @@ class SupplierOrders(APIView):
             return JsonResponse({'Status': False, 'Error': 'Только для поставщиков'}, status=403)
 
         order = Order.objects.filter(
-            ordered_items__product_info__shop__user_id=request.user.id).exclude(state='basket').prefetch_related(
+            ordered_items__product_info__supplier__user_id=request.user.id).exclude(state='basket').prefetch_related(
             'ordered_items__product_info__product__category',
             'ordered_items__product_info__product_parameters__parameter').select_related('contact').annotate(
             total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
@@ -386,7 +388,7 @@ class ContactView(APIView):
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
         if {'city', 'street', 'phone'}.issubset(request.data):
-            request.data._mutable = True
+            # request.data._mutable = True
             request.data.update({'user': request.user.id})
             serializer = ContactSerializer(data=request.data)
 
@@ -449,7 +451,8 @@ class OrderView(APIView):
             user_id=request.user.id).exclude(state='basket').prefetch_related(
             'ordered_items__product_info__product__category',
             'ordered_items__product_info__product_parameters__parameter').select_related('contact').annotate(
-            total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
+            total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price')
+            )).distinct().order_by('-dt')
 
         serializer = OrderSerializer(order, many=True)
         return Response(serializer.data)
@@ -471,7 +474,7 @@ class OrderView(APIView):
                     return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
                 else:
                     if is_updated:
-                        process_order.send(sender=self.__class__, user_id=request.user.id)
+                        update_order.send(sender=self.__class__, user_id=request.user.id)
                         return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
