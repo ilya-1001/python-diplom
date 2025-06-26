@@ -253,7 +253,7 @@ import requests as rq
 #                    headers={"Content-Type": "application/json",
 #                             "Authorization": "Token 7cffb2cd6e8e50d6d8de2548824669f133c3c25b"},
 #                    json={"url":
-#                         "https://raw.githubusercontent.com/ilya-1001/python-diplom/refs/heads/main/orders/shop1.yaml"}
+#                    "https://raw.githubusercontent.com/ilya-1001/python-diplom/refs/heads/main/orders/supplier1.yaml"}
 # )
 # print(response.status_code)
 # print(response.json())
@@ -266,7 +266,7 @@ import requests as rq
 #                    headers={"Content-Type": "application/json",
 #                             "Authorization": "Token 7cffb2cd6e8e50d6d8de2548824669f133c3c25b"},
 #                    json={"url":
-#                         "https://raw.githubusercontent.com/ilya-1001/python-diplom/refs/heads/main/orders/shop1.yaml"}
+#                    "https://raw.githubusercontent.com/ilya-1001/python-diplom/refs/heads/main/orders/supplier1.yaml"}
 # )
 # print(response.status_code)
 # print(response.json())
@@ -279,7 +279,7 @@ import requests as rq
 #                    headers={"Content-Type": "application/json",
 #                             "Authorization": "Token 7cffb2cd6e8e50d6d8de2548824669f133c3c25b"},
 #                    json={"url":
-#                         "https://raw.githubusercontent.com/ilya-1001/python-diplom/refs/heads/main/orders/shop1.yaml"}
+#                    "https://raw.githubusercontent.com/ilya-1001/python-diplom/refs/heads/main/orders/supplier1.yaml"}
 # )
 # print(response.status_code)
 # print(response.json())
