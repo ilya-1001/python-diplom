@@ -307,7 +307,7 @@ class SupplierUpdate(APIView):
                                                               price=item['price'],
                                                               price_rrc=item['price_rrc'],
                                                               quantity=item['quantity'],
-                                                              shop_id=supplier.id)
+                                                              supplier_id=supplier.id)
                     for name, value in item['parameters'].items():
                         parameter_object, _ = Parameter.objects.get_or_create(name=name)
                         ProductParameter.objects.create(product_info_id=product_info.id,
