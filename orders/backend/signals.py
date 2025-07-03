@@ -12,13 +12,19 @@ update_order = Signal()
 @receiver(post_save, sender=User)
 def new_user_registered(sender, instance, created, **kwargs):
     """
-    отправляем письмо с подтрердждением почты
+    отправляем письмо с токеном для подтрердждения почты
     """
     if created:
         token, _ = ConfirmEmailToken.objects.get_or_create(user_id=instance.pk)
         send_mail(
-            subject=f"Password Token for {instance.email}",
-            message=token.key,
+            subject='Подтверждение регистрации',
+            message=(
+            f"Здравствуйте, {instance.first_name}!\n\n"
+            "Спасибо за регистрацию.\n"
+            f"Ваш token подтверждения:\n\n"
+            f"{token.key}\n\n"
+            "Если вы не регистрировались, просто проигнорируйте это письмо."
+        ),
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[instance.email],
         )
@@ -30,7 +36,7 @@ def process_order(user_id, **kwargs):
     """
     отправяем письмо при изменении статуса заказа
     """
-    user = User.objects.get(id=user_id)
+    user = User.objects.get()
     send_mail(
     subject=f"Обновление статуса заказа",
     message='Заказ сформирован',

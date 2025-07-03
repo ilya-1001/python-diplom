@@ -39,7 +39,7 @@ def strtobool(val):
 
 
 # регистрация покупателей
-class SignUp(APIView):
+class SignUpView(APIView):
     def post(self, request, *args, **kwargs):
         # проверяем обязательные аргументы
         if {'first_name', 'last_name', 'username', 'email', 'password', 'company', 'position'}.issubset(request.data):
@@ -70,7 +70,7 @@ class SignUp(APIView):
 
 
 # подтверждение почтового адреса
-class ConfirmAccount(APIView):
+class ConfirmAccountView(APIView):
     def post(self, request, *args, **kwargs):
         # проверяем обязательные аргументы
         if {'email', 'token'}.issubset(request.data):
@@ -89,7 +89,7 @@ class ConfirmAccount(APIView):
 
 
 # управление данными учетной записи пользователя
-class AccountDetails(APIView):
+class AccountDetailsView(APIView):
     # получить данные
     def get(self, request: Request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -128,7 +128,7 @@ class AccountDetails(APIView):
 
 
 # авторизация пользователей
-class LoginAccount(APIView):
+class LoginAccountView(APIView):
     def post(self, request, *args, **kwargs):
         if {'email', 'password'}.issubset(request.data):
             user = authenticate(request, username=request.data['email'], password=request.data['password'])
@@ -145,13 +145,13 @@ class LoginAccount(APIView):
 
 
 # просмотр категорий
-class CategoryView(ListAPIView):
+class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 # просмотр списка поставщиков
-class SupplierView(ListAPIView):
+class SupplierListView(ListAPIView):
     queryset = Supplier.objects.filter(state=True)
     serializer_class = SupplierSerializer
 
@@ -272,7 +272,7 @@ class BasketView(APIView):
 
 
 # обновление информации о поставщике
-class SupplierUpdate(APIView):
+class SupplierUpdateView(APIView):
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -320,7 +320,7 @@ class SupplierUpdate(APIView):
 
 
 # информация о статусе поставщика
-class SupplierState(APIView):
+class SupplierStateView(APIView):
     # получить текущий статус
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -352,7 +352,7 @@ class SupplierState(APIView):
 
 
 # получение заказов поставщиками
-class SupplierOrders(APIView):
+class SupplierOrdersView(APIView):
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -478,3 +478,4 @@ class OrderView(APIView):
                         return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+
