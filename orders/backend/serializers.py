@@ -1,88 +1,123 @@
 from rest_framework import serializers
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from .models import (
+    User, Supplier, Category, Product, ProductInfo, Parameter,
+    ProductParameter, Contact, Order, OrderItem, ConfirmEmailToken
+)
 
-from .models import User, Category, Supplier, ProductInfo, Product, ProductParameter, OrderItem, Order, Contact
-
-
-class ContactSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Contact
-        fields = ('id', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'user', 'phone')
-        read_only_fields = ('id',)
-        extra_kwargs = {
-            'user': {'write_only': True}
-        }
-
+# --- Пользователь ---
 
 class UserSerializer(serializers.ModelSerializer):
-    contacts = ContactSerializer(read_only=True, many=True)
+    password = serializers.CharField(write_only=True, min_length=8)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    company = serializers.CharField(required=True)
+    position = serializers.CharField(required=True)
+    type = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'company', 'position', 'contacts', 'type')
-        read_only_fields = ('id',)
+        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'company', 'position', 'type']
+
+    def validate_password(self, value):
+        try:
+            validate_password(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.messages)
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ('id', 'name',)
-        read_only_fields = ('id',)
-
+# --- Поставщик ---
 
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
-        fields = ('id', 'name', 'state',)
-        read_only_fields = ('id',)
+        fields = ['id', 'name', 'address', 'city', 'url', 'state']
 
+
+# --- Категории ---
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+
+# --- Продукт ---
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.StringRelatedField()
-
     class Meta:
         model = Product
-        fields = ('name', 'category',)
+        fields = ['id', 'name', 'category']
+
+
+# --- Информация о продукте ---
+
+class ProductInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductInfo
+        fields = ['id', 'model', 'external_id', 'product', 'supplier', 'quantity', 'price', 'price_rrc']
+
+
+# --- Параметры ---
+
+class ParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parameter
+        fields = ['id', 'name']
 
 
 class ProductParameterSerializer(serializers.ModelSerializer):
-    parameter = serializers.StringRelatedField()
+    parameter = ParameterSerializer(read_only=True)
+    parameter_id = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Parameter.objects.all(),
+                                                      source='parameter')
 
     class Meta:
         model = ProductParameter
-        fields = ('parameter', 'value',)
+        fields = ['id', 'product_info', 'parameter', 'parameter_id', 'value']
 
 
-class ProductInfoSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
-    product_parameters = ProductParameterSerializer(read_only=True, many=True)
+# --- Контакты ---
+
+class ContactSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    house = serializers.CharField(required=True)
+    apartment = serializers.CharField(required=True)
 
     class Meta:
-        model = ProductInfo
-        fields = ('id', 'model', 'product', 'supplier', 'quantity', 'price', 'price_rrc', 'product_parameters',)
-        read_only_fields = ('id',)
+        model = Contact
+        fields = ['id', 'user', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'phone']
 
+
+# --- Заказ ---
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ('id', 'product_info', 'quantity', 'order',)
-        read_only_fields = ('id',)
-        extra_kwargs = {
-            'order': {'write_only': True}
-        }
-
-
-class OrderItemCreateSerializer(OrderItemSerializer):
-    product_info = ProductInfoSerializer(read_only=True)
+        fields = ['id', 'order', 'product_info', 'quantity']
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    ordered_items = OrderItemCreateSerializer(read_only=True, many=True)
-
-    total_sum = serializers.IntegerField()
-    contact = ContactSerializer(read_only=True)
+    ordered_items = OrderItemSerializer(many=True, read_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Order
-        fields = ('id', 'ordered_items', 'state', 'dt', 'total_sum', 'contact',)
-        read_only_fields = ('id',)
+        fields = ['id', 'user', 'dt', 'state', 'contact', 'ordered_items']

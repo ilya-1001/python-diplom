@@ -160,6 +160,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 
+    # 'EXCEPTION_HANDLER': (
+    #
+    #     'backend.utils.custom_exception_handler'
+    # ),
+
 }
 
 # Default primary key field type
