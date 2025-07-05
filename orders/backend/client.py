@@ -6,7 +6,8 @@ import requests as rq
 # response = rq.post("http://0.0.0.0:8000/api/v1/user/register",
 #                    json={"first_name": "first_name", "last_name": "last_name",
 #                          "username": "username", "email": "example@mail",
-#                          "password": "xxx-xxx-xxx", "company": "company", "position": "position"
+#                          "password": "xxx-xxx-xxx", "company": "company", 
+                           "position": "position", "type": "buyer"
 #                          },
 #                    )
 # print(response)
@@ -60,9 +61,21 @@ import requests as rq
 
 
 """
-редактирование информации о покупателе/поставщике 
+частичное редактирование информации о покупателе/поставщике
 """
-# response = rq.post("http://0.0.0.0:8000/api/v1/user/details",
+# response = rq.patch("http://0.0.0.0:8000/api/v1/user/details",
+#                     headers={"Authorization": "Token edb985d36660c37f773f3e9dff4ac08b54eef3c8"},
+#                     json={"type": "buyer",
+#                          },
+#                    )
+# print(response)
+# print(response.json())
+
+
+"""
+полное обновление информации о покупателе/поставщике
+"""
+# response = rq.put("http://0.0.0.0:8000/api/v1/user/details",
 #                     headers={"Authorization": "Token 967d5742833d66852e21fc1c47b8f1a7e6bb635b"},
 #                     json={"first_name": "first_name",
 #                           "last_name": "last_name",
@@ -256,6 +269,15 @@ import requests as rq
 #                    "https://raw.githubusercontent.com/ilya-1001/python-diplom/refs/heads/main/orders/supplier1.yaml"}
 # )
 # print(response.status_code)
+# print(response.json())
+
+
+"""
+информация о товаре 
+"""
+# response = rq.get("http://0.0.0.0:8000/api/v1/products"
+#                    )
+# print(response)
 # print(response.json())
 
 
