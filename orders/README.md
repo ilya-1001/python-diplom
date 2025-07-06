@@ -21,6 +21,7 @@
 - Может получать список оформленных заказов (с товарами из его прайса).
 
 ---
+
 ## Установка
 
 клонируйте репозиторий с помощью git:
@@ -33,16 +34,37 @@
 
 Создайте и активируйте виртуальное окружение:
 
-- python3 -m venv venv
-- source venv/bin/activate
+- [python-diplom]$ python3 -m venv venv
+- [python-diplom]$ source venv/bin/activate
 
 Установите зависимости:
 
-- pip install -r requirements.txt
+- [python-diplom]$ pip install -r requirements.txt
 
 Перейдите в папку с manage.py:
 
-- cd orders
+- [python-diplom]$ cd orders
+
+---
+
+## Настройка
+
+Создайте файл .env
+
+- [orders]$ touch '.env'
+
+В файле укажите свои настройки базы данных и эл.почты (в проекте используется БД: posgreSQL и email: mail.ru):
+
+- POSTGRES_DB = ...
+- POSTGRES_USER = ...
+- POSTGRES_PASSWORD = ...
+- POSTGRES_HOST = ...
+- POSTGRES_PORT = ...
+- EMAIL_HOST_USER = ...
+- EMAIL_HOST_PASSWORD = ...
+- SECRET_KEY = ...
+
+---
 
 ## Команды
 
