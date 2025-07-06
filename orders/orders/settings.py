@@ -143,7 +143,7 @@ EMAIL_USE_SSL = True
 SERVER_EMAIL = EMAIL_HOST_USER
 
 # Custom setting. To email
-RECIPIENT_ADDRESS = os.getenv('RECIPIENT_ADDRESS')
+# RECIPIENT_ADDRESS = os.getenv('RECIPIENT_ADDRESS')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
