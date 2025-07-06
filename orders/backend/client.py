@@ -5,7 +5,7 @@ import requests as rq
 """
 # response = rq.post("http://0.0.0.0:8000/api/v1/user/register",
 #                    json={"first_name": "first_name", "last_name": "last_name",
-#                          "username": "username", "email": "example@mail",
+#                          "username": "username", "email": "example@mail.ru",
 #                          "password": "xxx-xxx-xxx", "company": "company", 
                            "position": "position", "type": "buyer"
 #                          },
@@ -19,7 +19,7 @@ import requests as rq
 """
 # response = rq.post("http://0.0.0.0:8000/api/v1/user/register",
 #                    json={"first_name": "first_name", "last_name": "last_name",
-#                          "username": "username", "email": "example@mail",
+#                          "username": "username", "email": "example@mail.ru",
 #                          "password": "xxx-xxx-xxx", "company": "company",
 #                          "position": "position", "type": "supplier"
 #                          },
@@ -32,7 +32,7 @@ import requests as rq
 подтверждение электронной почты 
 """
 # response = rq.post("http://0.0.0.0:8000/api/v1/user/register/confirm",
-#                    json={"email": "example@mail",
+#                    json={"email": "example@mail.ru",
 #                          "token": "7776af6ed93d1c"},
 #                    )
 # print(response)
@@ -43,7 +43,7 @@ import requests as rq
 авторизация 
 """
 # response = rq.post("http://0.0.0.0:8000/api/v1/user/login",
-#                       json={"email": "example@mail",
+#                       json={"email": "example@mail.ru",
 #                             "password": "xxx-xxx-xxx"},
 #                    )
 # print(response)
@@ -80,7 +80,7 @@ import requests as rq
 #                     json={"first_name": "first_name",
 #                           "last_name": "last_name",
 #                           "username": "username",
-#                           "email": "example@mail",
+#                           "email": "example@mail.ru",
 #                           "password": "xxx-xxx-xxx",
 #                           "company": "company",
 #                           "position": "position",
@@ -153,7 +153,7 @@ import requests as rq
 сбросить пароль
 """
 # response = rq.post("http://0.0.0.0:8000/api/v1/user/password_reset",
-#                   json={"email": "dngr2013@yandex.ru"}
+#                   json={"email": "example@mail.ru"}
 # )
 # print(response.status_code)
 # print(response.json())
@@ -163,8 +163,8 @@ import requests as rq
 установить новый пароль 
 """
 # response = rq.post("http://0.0.0.0:8000/api/v1/user/password_reset/confirm",
-#                   json={"email": "dngr2013@yandex.ru",
-#                         "password": "Nds-021-TrA",
+#                   json={"email": "example@mail.ru",
+#                         "password": "xxx-xxx-xxx",
 #                         "token": "7f373b67f085009df7ea6fc6aba4625c4c53308d77f6e011cd"}
 # )
 # print(response.status_code)
