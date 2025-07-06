@@ -230,7 +230,7 @@ class BasketView(BaseAPIView):
 class SupplierUpdateView(BaseAPIView):
     """
     Обновление информации о поставщике через загрузку YAML файла по URL.
-    Валидация url, загрузка и парсинг, создание обновленный данных о товарах и категориях.
+    Валидация url, загрузка и парсинг, создание обновленных данных о товарах и категориях.
     """
     permission_classes = [IsAuthenticatedAndSupplier]
 
@@ -318,7 +318,7 @@ class SupplierStateView(BaseAPIView):
 
     def post(self, request):
         """
-        Изменение статуса: принимает параметры, переводит строковые представления True/False в булевы значения.
+        Изменение статуса: принимает параметры, переводит строковые представления True/False в булевые значения.
         """
         state = request.data.get('state')
         if state is None:
@@ -349,7 +349,7 @@ class SupplierOrdersView(BaseAPIView):
 
 class ContactView(BaseAPIView):
     """
-    Управление контактной информацией пользователя: просмотр, добавление, удаление, изменение.
+    Управление контактной информации пользователя: просмотр, добавление, удаление, изменение.
     """
     permission_classes = [permissions.IsAuthenticated]
 
