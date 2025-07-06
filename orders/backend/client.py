@@ -7,7 +7,7 @@ import requests as rq
 #                    json={"first_name": "first_name", "last_name": "last_name",
 #                          "username": "username", "email": "example@mail.ru",
 #                          "password": "xxx-xxx-xxx", "company": "company", 
-                           "position": "position", "type": "buyer"
+#                          "position": "position", "type": "buyer"
 #                          },
 #                    )
 # print(response)
