@@ -47,7 +47,7 @@ def process_order(user_id, **kwargs):
 
 # Сброс пароля
 @receiver(reset_password_token_created)
-def notify_about_new_cats(sender, instance, reset_password_token, **kwargs):
+def notify_reset_password_token(sender, instance, reset_password_token, **kwargs):
     """
     Отправляем письмо с токеном для сброса пароля
     """
